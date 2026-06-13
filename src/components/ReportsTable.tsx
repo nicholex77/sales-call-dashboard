@@ -35,6 +35,8 @@ export default function ReportsTable() {
                 <th className="text-right px-3 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">N/A 3x</th>
                 <th className="text-right px-3 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Interested</th>
                 <th className="text-right px-3 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Not Int.</th>
+                <th className="text-right px-3 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Suspend</th>
+                <th className="text-right px-3 py-3 font-medium text-slate-600 text-xs uppercase tracking-wide">Hang Up</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -50,6 +52,8 @@ export default function ReportsTable() {
                     <td className="px-3 py-3 text-right text-slate-500">{r.noAnswer3x}</td>
                     <td className="px-3 py-3 text-right font-medium text-green-600">{r.interested}</td>
                     <td className="px-3 py-3 text-right font-medium text-red-500">{r.notInterested}</td>
+                    <td className="px-3 py-3 text-right text-slate-500">{r.suspend ?? 0}</td>
+                    <td className="px-3 py-3 text-right text-slate-500">{r.hangUp ?? 0}</td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1 justify-end">
                         <button
@@ -78,7 +82,7 @@ export default function ReportsTable() {
                   </tr>
                   {expanded === r.id && (
                     <tr key={`${r.id}-expanded`} className="bg-indigo-50/30">
-                      <td colSpan={9} className="px-6 py-4">
+                      <td colSpan={11} className="px-6 py-4">
                         <div className="grid grid-cols-2 gap-6">
                           <div>
                             <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Rejection Breakdown</p>

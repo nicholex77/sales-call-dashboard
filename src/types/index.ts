@@ -8,14 +8,14 @@ export interface CallReport {
   id: string
   date: string
   agentName: string
-  // Outcome counts
   noAnswer: number
   noAnswer2x: number
   noAnswer3x: number
   answered: number
   interested: number
   notInterested: number
-  // rejection label id -> count
+  suspend: number
+  hangUp: number
   rejectionBreakdown: Record<string, number>
   remarks: string
   createdAt: string
@@ -32,7 +32,13 @@ export type MetricKey =
   | 'totalInterested'
   | 'totalNotInterested'
   | 'noAnswerTotal'
+  | 'suspendTotal'
+  | 'hangUpTotal'
   | 'rejectionBreakdown'
+  | 'dailyCallsChart'
+  | 'dailyInterestChart'
+  | 'dayByDayTable'
+  | 'niReasonLog'
 
 export interface DashboardWidget {
   id: string

@@ -1,17 +1,50 @@
-import { useMemo, useCallback } from 'react'
+import { useMemo, useCallback, useState } from 'react'
 import { GridLayout } from 'react-grid-layout'
 import type { Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
+import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { computeMetrics, METRIC_LABELS } from '../utils/metrics'
 import MetricCard from './MetricCard'
+import {
+  DailyCallsWidget,
+  DailyInterestWidget,
+  DayByDayTableWidget,
+  NiReasonLogWidget,
+} from './DashboardWidgets'
 import type { ChartType, MetricKey } from '../types'
 
 const CHART_TYPES: ChartType[] = ['bar', 'pie', 'line', 'area']
 
+const COMPLEX_KEYS: MetricKey[] = ['dailyCallsChart', 'dailyInterestChart', 'dayByDayTable', 'niReasonLog']
+
+const WIDGET_CATALOG: { metricKey: MetricKey; defaultChartType: ChartType }[] = [
+  { metricKey: 'totalCalls', defaultChartType: 'bar' },
+  { metricKey: 'totalAnswered', defaultChartType: 'bar' },
+  { metricKey: 'totalInterested', defaultChartType: 'bar' },
+  { metricKey: 'totalNotInterested', defaultChartType: 'bar' },
+  { metricKey: 'suspendTotal', defaultChartType: 'bar' },
+  { metricKey: 'hangUpTotal', defaultChartType: 'bar' },
+  { metricKey: 'noAnswerTotal', defaultChartType: 'bar' },
+  { metricKey: 'answerRate', defaultChartType: 'pie' },
+  { metricKey: 'interestRate', defaultChartType: 'bar' },
+  { metricKey: 'notInterestedRate', defaultChartType: 'bar' },
+  { metricKey: 'rejectionBreakdown', defaultChartType: 'pie' },
+  { metricKey: 'dailyCallsChart', defaultChartType: 'bar' },
+  { metricKey: 'dailyInterestChart', defaultChartType: 'bar' },
+  { metricKey: 'dayByDayTable', defaultChartType: 'bar' },
+  { metricKey: 'niReasonLog', defaultChartType: 'bar' },
+]
+
 export default function Dashboard() {
-  const { reports, labels, widgets, editMode, updateWidgets, toggleWidget, setWidgetChartType, resetWidgets } = useStore()
+  const {
+    reports, labels, widgets, editMode,
+    updateWidgets, toggleWidget, setWidgetChartType,
+    addWidget, removeWidget, resetWidgets,
+  } = useStore()
+
+  const [showPicker, setShowPicker] = useState(false)
 
   const metrics = useMemo(() => computeMetrics(reports, labels), [reports, labels])
 
@@ -34,25 +67,84 @@ export default function Dashboard() {
 
   const visibleWidgets = widgets.filter((w) => w.visible)
 
+  const renderContent = (metricKey: MetricKey, chartType: ChartType, widgetH: number) => {
+    switch (metricKey) {
+      case 'dailyCallsChart':
+        return <DailyCallsWidget data={metrics.dailyBreakdown} />
+      case 'dailyInterestChart':
+        return <DailyInterestWidget data={metrics.dailyBreakdown} />
+      case 'dayByDayTable':
+        return <DayByDayTableWidget data={metrics.dailyBreakdown} />
+      case 'niReasonLog':
+        return <NiReasonLogWidget data={metrics.rejectionBreakdown} />
+      default:
+        return (
+          <MetricCard
+            metricKey={metricKey}
+            chartType={chartType}
+            metrics={metrics}
+            compact={widgetH <= 2}
+          />
+        )
+    }
+  }
+
   return (
     <div>
       {editMode && (
-        <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
-          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-4">
+          {/* Header row */}
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-medium text-indigo-700 mb-3">Dashboard Customization</p>
-              <p className="text-sm text-slate-600 max-w-2xl">
-                Drag widgets like puzzle pieces, resize them, and choose which charts to display. Your layout is saved automatically.
+              <p className="text-sm font-semibold text-indigo-700">Dashboard Customization</p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Drag &amp; resize widgets. Toggle visibility, change chart type, or remove individual cards.
               </p>
             </div>
-            <button
-              onClick={resetWidgets}
-              className="inline-flex items-center justify-center rounded-lg border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-50"
-            >
-              Reset layout
-            </button>
+            <div className="flex gap-2 flex-shrink-0">
+              <button
+                onClick={() => setShowPicker((v) => !v)}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-indigo-600 px-3 py-2 text-sm font-medium text-white hover:bg-indigo-700 transition-colors"
+              >
+                <Plus size={14} />
+                Add Widget
+                {showPicker ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
+              </button>
+              <button
+                onClick={resetWidgets}
+                className="inline-flex items-center rounded-lg border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors"
+              >
+                Reset layout
+              </button>
+            </div>
           </div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
+
+          {/* Widget picker */}
+          {showPicker && (
+            <div className="p-3 bg-white rounded-lg border border-indigo-200">
+              <p className="text-xs font-medium text-slate-500 mb-2">
+                Select a widget type to add to the dashboard:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {WIDGET_CATALOG.map(({ metricKey, defaultChartType }) => (
+                  <button
+                    key={metricKey}
+                    onClick={() => {
+                      addWidget(metricKey, defaultChartType)
+                      setShowPicker(false)
+                    }}
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 transition-colors"
+                  >
+                    <Plus size={11} />
+                    {METRIC_LABELS[metricKey]}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Existing widget list */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
             {widgets.map((w) => (
               <div
                 key={w.id}
@@ -62,16 +154,26 @@ export default function Dashboard() {
                     : 'border-slate-200 bg-slate-50 opacity-60'
                 }`}
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5">
                   <input
                     type="checkbox"
                     checked={w.visible}
                     onChange={() => toggleWidget(w.id)}
-                    className="accent-indigo-600"
+                    className="accent-indigo-600 flex-shrink-0"
                   />
-                  <span className="font-medium text-slate-700">{METRIC_LABELS[w.metricKey]}</span>
+                  <span className="font-medium text-slate-700 flex-1 truncate min-w-0">
+                    {METRIC_LABELS[w.metricKey]}
+                  </span>
+                  <button
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onClick={() => removeWidget(w.id)}
+                    className="flex-shrink-0 text-slate-400 hover:text-red-500 transition-colors"
+                    title="Remove widget"
+                  >
+                    <X size={12} />
+                  </button>
                 </div>
-                {w.visible && (
+                {w.visible && !COMPLEX_KEYS.includes(w.metricKey) && (
                   <select
                     value={w.chartType}
                     onChange={(e) => setWidgetChartType(w.id, e.target.value as ChartType)}
@@ -87,8 +189,9 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-          <p className="text-xs text-indigo-500 mt-3">
-            Drag widgets to reorder. Resize by dragging the bottom-right corner.
+
+          <p className="text-xs text-indigo-400">
+            Tip: Drag widgets to reorder. Resize by dragging the bottom-right corner handle.
           </p>
         </div>
       )}
@@ -100,8 +203,8 @@ export default function Dashboard() {
       ) : (
         <GridLayout
           layout={layout}
-          width={1100}
-          gridConfig={{ cols: 8, rowHeight: 80, margin: [12, 12] }}
+          width={1200}
+          gridConfig={{ cols: 12, rowHeight: 80, margin: [12, 12] }}
           dragConfig={{ enabled: editMode }}
           resizeConfig={{ enabled: editMode, handles: ['se'] }}
           onLayoutChange={onLayoutChange}
@@ -110,13 +213,21 @@ export default function Dashboard() {
           {visibleWidgets.map((w) => (
             <div
               key={w.id}
-              className="bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden"
+              className={`bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden relative group ${
+                editMode ? 'ring-1 ring-indigo-200' : ''
+              }`}
             >
-              <MetricCard
-                metricKey={w.metricKey as MetricKey}
-                chartType={w.chartType}
-                metrics={metrics}
-              />
+              {editMode && (
+                <button
+                  onMouseDown={(e) => e.stopPropagation()}
+                  onClick={() => removeWidget(w.id)}
+                  className="absolute top-2 right-2 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-red-50 border border-red-200 text-red-400 hover:bg-red-100 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  title="Remove widget"
+                >
+                  <X size={11} />
+                </button>
+              )}
+              {renderContent(w.metricKey, w.chartType, w.h)}
             </div>
           ))}
         </GridLayout>

@@ -25,6 +25,8 @@ export default function CallEntryForm({ onClose, editing }: Props) {
     answered: String(editing?.answered ?? 0),
     interested: String(editing?.interested ?? 0),
     notInterested: String(editing?.notInterested ?? 0),
+    suspend: String(editing?.suspend ?? 0),
+    hangUp: String(editing?.hangUp ?? 0),
     remarks: editing?.remarks ?? '',
     rejectionBreakdown: editing?.rejectionBreakdown ?? {} as Record<string, number>,
   })
@@ -49,6 +51,8 @@ export default function CallEntryForm({ onClose, editing }: Props) {
       answered: numField(form.answered),
       interested: numField(form.interested),
       notInterested: numField(form.notInterested),
+      suspend: numField(form.suspend),
+      hangUp: numField(form.hangUp),
       remarks: form.remarks,
       rejectionBreakdown: form.rejectionBreakdown,
     }
@@ -59,6 +63,17 @@ export default function CallEntryForm({ onClose, editing }: Props) {
     }
     onClose()
   }
+
+  const outcomeFields = [
+    { key: 'noAnswer', label: 'No Answer (1x)' },
+    { key: 'noAnswer2x', label: 'No Answer (2x)' },
+    { key: 'noAnswer3x', label: 'No Answer (3x)' },
+    { key: 'answered', label: 'Answered' },
+    { key: 'interested', label: 'Interested' },
+    { key: 'notInterested', label: 'Not Interested' },
+    { key: 'suspend', label: 'Suspend' },
+    { key: 'hangUp', label: 'Hang Up' },
+  ]
 
   return (
     <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
@@ -98,15 +113,8 @@ export default function CallEntryForm({ onClose, editing }: Props) {
 
           <div>
             <p className="text-sm font-medium text-slate-700 mb-2">Call Outcomes</p>
-            <div className="grid grid-cols-3 gap-3">
-              {[
-                { key: 'noAnswer', label: 'No Answer (1x)' },
-                { key: 'noAnswer2x', label: 'No Answer (2x)' },
-                { key: 'noAnswer3x', label: 'No Answer (3x)' },
-                { key: 'answered', label: 'Answered' },
-                { key: 'interested', label: 'Interested' },
-                { key: 'notInterested', label: 'Not Interested' },
-              ].map(({ key, label }) => (
+            <div className="grid grid-cols-4 gap-3">
+              {outcomeFields.map(({ key, label }) => (
                 <div key={key}>
                   <label className="block text-xs text-slate-500 mb-1">{label}</label>
                   <input
@@ -124,7 +132,8 @@ export default function CallEntryForm({ onClose, editing }: Props) {
           {labels.length > 0 && (
             <div>
               <p className="text-sm font-medium text-slate-700 mb-2">
-                Rejection Reasons <span className="text-xs font-normal text-slate-400">(for Not Interested agents)</span>
+                Rejection Reasons{' '}
+                <span className="text-xs font-normal text-slate-400">(for Not Interested agents)</span>
               </p>
               <div className="space-y-2">
                 {labels.map((label) => (
