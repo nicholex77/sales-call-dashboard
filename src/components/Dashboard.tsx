@@ -1,9 +1,9 @@
 import { useMemo, useCallback, useState } from 'react'
-import { GridLayout } from 'react-grid-layout'
+import { GridLayout, useContainerWidth } from 'react-grid-layout'
 import type { Layout } from 'react-grid-layout'
 import 'react-grid-layout/css/styles.css'
 import 'react-resizable/css/styles.css'
-import { Plus, X, ChevronDown, ChevronUp } from 'lucide-react'
+import { Plus, X, ChevronDown, ChevronUp, GripHorizontal } from 'lucide-react'
 import { useStore } from '../store/useStore'
 import { computeMetrics, METRIC_LABELS } from '../utils/metrics'
 import MetricCard from './MetricCard'
@@ -16,7 +16,6 @@ import {
 import type { ChartType, MetricKey } from '../types'
 
 const CHART_TYPES: ChartType[] = ['bar', 'pie', 'line', 'area']
-
 const COMPLEX_KEYS: MetricKey[] = ['dailyCallsChart', 'dailyInterestChart', 'dayByDayTable', 'niReasonLog']
 
 const WIDGET_CATALOG: { metricKey: MetricKey; defaultChartType: ChartType }[] = [
@@ -45,6 +44,7 @@ export default function Dashboard() {
   } = useStore()
 
   const [showPicker, setShowPicker] = useState(false)
+  const { width: containerWidth, containerRef, mounted } = useContainerWidth()
 
   const metrics = useMemo(() => computeMetrics(reports, labels), [reports, labels])
 
@@ -67,7 +67,7 @@ export default function Dashboard() {
 
   const visibleWidgets = widgets.filter((w) => w.visible)
 
-  const renderContent = (metricKey: MetricKey, chartType: ChartType, widgetH: number) => {
+  const renderContent = (metricKey: MetricKey, chartType: ChartType) => {
     switch (metricKey) {
       case 'dailyCallsChart':
         return <DailyCallsWidget data={metrics.dailyBreakdown} />
@@ -78,27 +78,20 @@ export default function Dashboard() {
       case 'niReasonLog':
         return <NiReasonLogWidget data={metrics.rejectionBreakdown} />
       default:
-        return (
-          <MetricCard
-            metricKey={metricKey}
-            chartType={chartType}
-            metrics={metrics}
-            compact={widgetH <= 2}
-          />
-        )
+        return <MetricCard metricKey={metricKey} chartType={chartType} metrics={metrics} />
     }
   }
 
   return (
     <div>
+      {/* Edit mode panel */}
       {editMode && (
         <div className="mb-4 p-4 bg-indigo-950 border border-indigo-800 rounded-xl space-y-4">
-          {/* Header row */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-indigo-400">Dashboard Customization</p>
+              <p className="text-sm font-semibold text-indigo-400">Customize Layout</p>
               <p className="text-xs text-slate-400 mt-0.5">
-                Drag &amp; resize widgets. Toggle visibility, change chart type, or remove individual cards.
+                Drag the grip handle to reorder · resize from the bottom-right corner · toggle or remove widgets below
               </p>
             </div>
             <div className="flex gap-2 flex-shrink-0">
@@ -119,20 +112,14 @@ export default function Dashboard() {
             </div>
           </div>
 
-          {/* Widget picker */}
           {showPicker && (
             <div className="p-3 bg-slate-800 rounded-lg border border-indigo-800">
-              <p className="text-xs font-medium text-slate-400 mb-2">
-                Select a widget type to add to the dashboard:
-              </p>
+              <p className="text-xs font-medium text-slate-400 mb-2">Click to add to dashboard:</p>
               <div className="flex flex-wrap gap-2">
                 {WIDGET_CATALOG.map(({ metricKey, defaultChartType }) => (
                   <button
                     key={metricKey}
-                    onClick={() => {
-                      addWidget(metricKey, defaultChartType)
-                      setShowPicker(false)
-                    }}
+                    onClick={() => { addWidget(metricKey, defaultChartType); setShowPicker(false) }}
                     className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-700 border border-slate-600 rounded-lg hover:bg-indigo-900 hover:border-indigo-600 hover:text-indigo-300 transition-colors text-slate-300"
                   >
                     <Plus size={11} />
@@ -143,15 +130,12 @@ export default function Dashboard() {
             </div>
           )}
 
-          {/* Existing widget list */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
             {widgets.map((w) => (
               <div
                 key={w.id}
                 className={`flex flex-col gap-1.5 p-2.5 rounded-lg border text-xs ${
-                  w.visible
-                    ? 'border-indigo-700 bg-slate-800'
-                    : 'border-slate-700 bg-slate-800 opacity-50'
+                  w.visible ? 'border-indigo-700 bg-slate-800' : 'border-slate-700 bg-slate-800 opacity-50'
                 }`}
               >
                 <div className="flex items-center gap-1.5">
@@ -168,7 +152,6 @@ export default function Dashboard() {
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => removeWidget(w.id)}
                     className="flex-shrink-0 text-slate-500 hover:text-red-400 transition-colors"
-                    title="Remove widget"
                   >
                     <X size={12} />
                   </button>
@@ -189,10 +172,6 @@ export default function Dashboard() {
               </div>
             ))}
           </div>
-
-          <p className="text-xs text-indigo-600">
-            Tip: Drag widgets to reorder. Resize by dragging the bottom-right corner handle.
-          </p>
         </div>
       )}
 
@@ -201,36 +180,48 @@ export default function Dashboard() {
           No widgets visible. Enable some in edit mode.
         </div>
       ) : (
-        <GridLayout
-          layout={layout}
-          width={1200}
-          gridConfig={{ cols: 12, rowHeight: 80, margin: [12, 12] }}
-          dragConfig={{ enabled: editMode }}
-          resizeConfig={{ enabled: editMode, handles: ['se'] }}
-          onLayoutChange={onLayoutChange}
-          autoSize
-        >
-          {visibleWidgets.map((w) => (
-            <div
-              key={w.id}
-              className={`bg-slate-900 rounded-2xl shadow-sm border border-slate-700 p-4 overflow-hidden relative group ${
-                editMode ? 'ring-1 ring-indigo-800 cursor-grab active:cursor-grabbing' : ''
-              }`}
+        <div ref={containerRef}>
+          {mounted && (
+            <GridLayout
+              layout={layout}
+              width={containerWidth}
+              gridConfig={{ cols: 12, rowHeight: 72, margin: [10, 10] }}
+              dragConfig={{ enabled: editMode, handle: '.drag-handle' }}
+              resizeConfig={{ enabled: editMode, handles: ['se'] }}
+              onLayoutChange={onLayoutChange}
+              autoSize
             >
-              {editMode && (
-                <button
-                  onMouseDown={(e) => e.stopPropagation()}
-                  onClick={() => removeWidget(w.id)}
-                  className="absolute top-2 right-2 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-red-950 border border-red-800 text-red-400 hover:bg-red-900 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
-                  title="Remove widget"
+              {visibleWidgets.map((w) => (
+                <div
+                  key={w.id}
+                  className={`bg-slate-900 rounded-xl border border-slate-800 p-4 overflow-hidden relative group flex flex-col ${
+                    editMode ? 'ring-1 ring-indigo-800/60' : ''
+                  }`}
                 >
-                  <X size={11} />
-                </button>
-              )}
-              {renderContent(w.metricKey, w.chartType, w.h)}
-            </div>
-          ))}
-        </GridLayout>
+                  {/* Drag handle — only visible in edit mode */}
+                  {editMode && (
+                    <div className="drag-handle absolute top-0 left-0 right-0 h-7 flex items-center justify-center cursor-grab active:cursor-grabbing z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <GripHorizontal size={16} className="text-slate-500" />
+                    </div>
+                  )}
+                  {/* Remove button */}
+                  {editMode && (
+                    <button
+                      onMouseDown={(e) => e.stopPropagation()}
+                      onClick={() => removeWidget(w.id)}
+                      className="absolute top-1.5 right-1.5 z-20 w-5 h-5 flex items-center justify-center rounded-full bg-red-950/80 border border-red-800 text-red-400 hover:bg-red-900 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
+                      <X size={11} />
+                    </button>
+                  )}
+                  <div className={`flex-1 min-h-0 ${editMode ? 'pt-4' : ''}`}>
+                    {renderContent(w.metricKey, w.chartType)}
+                  </div>
+                </div>
+              ))}
+            </GridLayout>
+          )}
+        </div>
       )}
     </div>
   )
