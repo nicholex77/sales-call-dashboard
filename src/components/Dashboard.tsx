@@ -92,12 +92,12 @@ export default function Dashboard() {
   return (
     <div>
       {editMode && (
-        <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-xl space-y-4">
+        <div className="mb-4 p-4 bg-indigo-950 border border-indigo-800 rounded-xl space-y-4">
           {/* Header row */}
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <p className="text-sm font-semibold text-indigo-700">Dashboard Customization</p>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-sm font-semibold text-indigo-400">Dashboard Customization</p>
+              <p className="text-xs text-slate-400 mt-0.5">
                 Drag &amp; resize widgets. Toggle visibility, change chart type, or remove individual cards.
               </p>
             </div>
@@ -112,7 +112,7 @@ export default function Dashboard() {
               </button>
               <button
                 onClick={resetWidgets}
-                className="inline-flex items-center rounded-lg border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-700 hover:bg-indigo-50 transition-colors"
+                className="inline-flex items-center rounded-lg border border-indigo-700 bg-slate-900 px-3 py-2 text-sm font-medium text-indigo-400 hover:bg-indigo-900 transition-colors"
               >
                 Reset layout
               </button>
@@ -121,8 +121,8 @@ export default function Dashboard() {
 
           {/* Widget picker */}
           {showPicker && (
-            <div className="p-3 bg-white rounded-lg border border-indigo-200">
-              <p className="text-xs font-medium text-slate-500 mb-2">
+            <div className="p-3 bg-slate-800 rounded-lg border border-indigo-800">
+              <p className="text-xs font-medium text-slate-400 mb-2">
                 Select a widget type to add to the dashboard:
               </p>
               <div className="flex flex-wrap gap-2">
@@ -133,7 +133,7 @@ export default function Dashboard() {
                       addWidget(metricKey, defaultChartType)
                       setShowPicker(false)
                     }}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-50 border border-slate-200 rounded-lg hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 transition-colors"
+                    className="flex items-center gap-1.5 px-2.5 py-1.5 text-xs font-medium bg-slate-700 border border-slate-600 rounded-lg hover:bg-indigo-900 hover:border-indigo-600 hover:text-indigo-300 transition-colors text-slate-300"
                   >
                     <Plus size={11} />
                     {METRIC_LABELS[metricKey]}
@@ -150,8 +150,8 @@ export default function Dashboard() {
                 key={w.id}
                 className={`flex flex-col gap-1.5 p-2.5 rounded-lg border text-xs ${
                   w.visible
-                    ? 'border-indigo-300 bg-white'
-                    : 'border-slate-200 bg-slate-50 opacity-60'
+                    ? 'border-indigo-700 bg-slate-800'
+                    : 'border-slate-700 bg-slate-800 opacity-50'
                 }`}
               >
                 <div className="flex items-center gap-1.5">
@@ -159,15 +159,15 @@ export default function Dashboard() {
                     type="checkbox"
                     checked={w.visible}
                     onChange={() => toggleWidget(w.id)}
-                    className="accent-indigo-600 flex-shrink-0"
+                    className="accent-indigo-500 flex-shrink-0"
                   />
-                  <span className="font-medium text-slate-700 flex-1 truncate min-w-0">
+                  <span className="font-medium text-slate-200 flex-1 truncate min-w-0">
                     {METRIC_LABELS[w.metricKey]}
                   </span>
                   <button
                     onMouseDown={(e) => e.stopPropagation()}
                     onClick={() => removeWidget(w.id)}
-                    className="flex-shrink-0 text-slate-400 hover:text-red-500 transition-colors"
+                    className="flex-shrink-0 text-slate-500 hover:text-red-400 transition-colors"
                     title="Remove widget"
                   >
                     <X size={12} />
@@ -177,7 +177,7 @@ export default function Dashboard() {
                   <select
                     value={w.chartType}
                     onChange={(e) => setWidgetChartType(w.id, e.target.value as ChartType)}
-                    className="border border-slate-300 rounded px-1.5 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                    className="border border-slate-600 rounded px-1.5 py-1 text-xs bg-slate-700 text-slate-200 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                   >
                     {CHART_TYPES.map((t) => (
                       <option key={t} value={t}>
@@ -190,14 +190,14 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <p className="text-xs text-indigo-400">
+          <p className="text-xs text-indigo-600">
             Tip: Drag widgets to reorder. Resize by dragging the bottom-right corner handle.
           </p>
         </div>
       )}
 
       {visibleWidgets.length === 0 ? (
-        <div className="text-center py-16 text-slate-400 text-sm">
+        <div className="text-center py-16 text-slate-500 text-sm">
           No widgets visible. Enable some in edit mode.
         </div>
       ) : (
@@ -213,15 +213,15 @@ export default function Dashboard() {
           {visibleWidgets.map((w) => (
             <div
               key={w.id}
-              className={`bg-white rounded-2xl shadow-sm border border-slate-200 p-4 overflow-hidden relative group ${
-                editMode ? 'ring-1 ring-indigo-200' : ''
+              className={`bg-slate-900 rounded-2xl shadow-sm border border-slate-700 p-4 overflow-hidden relative group ${
+                editMode ? 'ring-1 ring-indigo-800 cursor-grab active:cursor-grabbing' : ''
               }`}
             >
               {editMode && (
                 <button
                   onMouseDown={(e) => e.stopPropagation()}
                   onClick={() => removeWidget(w.id)}
-                  className="absolute top-2 right-2 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-red-50 border border-red-200 text-red-400 hover:bg-red-100 hover:text-red-600 opacity-0 group-hover:opacity-100 transition-opacity"
+                  className="absolute top-2 right-2 z-10 w-5 h-5 flex items-center justify-center rounded-full bg-red-950 border border-red-800 text-red-400 hover:bg-red-900 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
                   title="Remove widget"
                 >
                   <X size={11} />

@@ -75,14 +75,16 @@ export default function CallEntryForm({ onClose, editing }: Props) {
     { key: 'hangUp', label: 'Hang Up' },
   ]
 
+  const inputCls = 'w-full border border-slate-600 rounded-lg px-3 py-2 text-sm bg-slate-800 text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500'
+
   return (
-    <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b">
-          <h2 className="text-lg font-semibold text-slate-800">
+    <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+      <div className="bg-slate-900 rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto border border-slate-700">
+        <div className="flex items-center justify-between p-6 border-b border-slate-700">
+          <h2 className="text-lg font-semibold text-white">
             {editing ? 'Edit Call Report' : 'New Call Report'}
           </h2>
-          <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+          <button onClick={onClose} className="text-slate-500 hover:text-slate-300">
             <X size={20} />
           </button>
         </div>
@@ -90,21 +92,21 @@ export default function CallEntryForm({ onClose, editing }: Props) {
         <form onSubmit={handleSubmit} className="p-6 space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Date</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Date</label>
               <input
                 type="date"
                 required
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={inputCls}
                 value={form.date}
                 onChange={(e) => set('date', e.target.value)}
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Agent Name</label>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Agent Name</label>
               <input
                 type="text"
                 placeholder="e.g. John Doe"
-                className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className={inputCls}
                 value={form.agentName}
                 onChange={(e) => set('agentName', e.target.value)}
               />
@@ -112,15 +114,15 @@ export default function CallEntryForm({ onClose, editing }: Props) {
           </div>
 
           <div>
-            <p className="text-sm font-medium text-slate-700 mb-2">Call Outcomes</p>
+            <p className="text-sm font-medium text-slate-300 mb-2">Call Outcomes</p>
             <div className="grid grid-cols-4 gap-3">
               {outcomeFields.map(({ key, label }) => (
                 <div key={key}>
-                  <label className="block text-xs text-slate-500 mb-1">{label}</label>
+                  <label className="block text-xs text-slate-400 mb-1">{label}</label>
                   <input
                     type="number"
                     min="0"
-                    className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className={inputCls}
                     value={form[key as keyof typeof form] as string}
                     onChange={(e) => set(key, e.target.value)}
                   />
@@ -131,9 +133,9 @@ export default function CallEntryForm({ onClose, editing }: Props) {
 
           {labels.length > 0 && (
             <div>
-              <p className="text-sm font-medium text-slate-700 mb-2">
+              <p className="text-sm font-medium text-slate-300 mb-2">
                 Rejection Reasons{' '}
-                <span className="text-xs font-normal text-slate-400">(for Not Interested agents)</span>
+                <span className="text-xs font-normal text-slate-500">(for Not Interested agents)</span>
               </p>
               <div className="space-y-2">
                 {labels.map((label) => (
@@ -142,11 +144,11 @@ export default function CallEntryForm({ onClose, editing }: Props) {
                       className="w-2.5 h-2.5 rounded-full flex-shrink-0"
                       style={{ background: label.color }}
                     />
-                    <span className="text-sm text-slate-700 flex-1">{label.name}</span>
+                    <span className="text-sm text-slate-200 flex-1">{label.name}</span>
                     <input
                       type="number"
                       min="0"
-                      className="w-20 border border-slate-300 rounded-lg px-2 py-1.5 text-sm text-center focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-20 border border-slate-600 rounded-lg px-2 py-1.5 text-sm text-center bg-slate-800 text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                       value={form.rejectionBreakdown[label.id] ?? 0}
                       onChange={(e) => setRejection(label.id, e.target.value)}
                     />
@@ -157,11 +159,11 @@ export default function CallEntryForm({ onClose, editing }: Props) {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1">Remarks</label>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Remarks</label>
             <textarea
               rows={3}
               placeholder="Any notes about this session..."
-              className="w-full border border-slate-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 resize-none"
+              className={inputCls + ' resize-none'}
               value={form.remarks}
               onChange={(e) => set('remarks', e.target.value)}
             />
@@ -171,7 +173,7 @@ export default function CallEntryForm({ onClose, editing }: Props) {
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 text-sm text-slate-600 hover:text-slate-800 border border-slate-300 rounded-lg"
+              className="px-4 py-2 text-sm text-slate-300 hover:text-slate-100 border border-slate-600 rounded-lg hover:bg-slate-800"
             >
               Cancel
             </button>

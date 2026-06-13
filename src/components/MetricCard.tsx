@@ -8,6 +8,16 @@ import {
 
 const COLORS = ['#6366f1', '#22c55e', '#f97316', '#ef4444', '#06b6d4', '#a855f7', '#ec4899', '#eab308']
 
+const DARK_TOOLTIP = {
+  contentStyle: {
+    borderRadius: 8,
+    border: '1px solid #334155',
+    backgroundColor: '#0f172a',
+    color: '#f1f5f9',
+    fontSize: 12,
+  },
+}
+
 type ScalarMetricKey = Exclude<MetricKey, 'dailyCallsChart' | 'dailyInterestChart' | 'dayByDayTable' | 'niReasonLog'>
 
 interface Props {
@@ -67,9 +77,9 @@ export default function MetricCard({ metricKey, chartType, metrics, compact }: P
   if (compact) {
     return (
       <div className="h-full flex flex-col justify-center gap-0.5">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide leading-none">{label}</p>
-        <p className={`font-bold text-slate-800 leading-none ${isRate ? 'text-xl' : 'text-2xl'}`}>{formatted}</p>
-        {subtitle && <p className="text-xs text-slate-400 leading-none">{subtitle}</p>}
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide leading-none">{label}</p>
+        <p className={`font-bold text-white leading-none ${isRate ? 'text-xl' : 'text-2xl'}`}>{formatted}</p>
+        {subtitle && <p className="text-xs text-slate-500 leading-none">{subtitle}</p>}
       </div>
     )
   }
@@ -81,39 +91,39 @@ export default function MetricCard({ metricKey, chartType, metrics, compact }: P
 
   return (
     <div className="h-full flex flex-col">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-0.5">{label}</p>
-      <p className="text-2xl font-bold text-slate-800 mb-1">{formatted}</p>
-      {subtitle && <p className="text-xs text-slate-400 mb-2">{subtitle}</p>}
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-0.5">{label}</p>
+      <p className="text-2xl font-bold text-white mb-1">{formatted}</p>
+      {subtitle && <p className="text-xs text-slate-500 mb-2">{subtitle}</p>}
       <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           {chartType === 'pie' || isRate ? (
             <PieChart>
               <Pie data={chartData} dataKey="value" cx="50%" cy="50%" outerRadius="80%">
                 {chartData.map((_, i) => (
-                  <Cell key={i} fill={i === 0 ? COLORS[0] : '#e2e8f0'} />
+                  <Cell key={i} fill={i === 0 ? COLORS[0] : '#1e293b'} />
                 ))}
               </Pie>
-              <Tooltip formatter={(v) => `${Number(v).toFixed(1)}${isRate ? '%' : ''}`} />
+              <Tooltip {...DARK_TOOLTIP} formatter={(v) => `${Number(v).toFixed(1)}${isRate ? '%' : ''}`} />
             </PieChart>
           ) : chartType === 'line' ? (
             <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip />
-              <Line type="monotone" dataKey="value" stroke={COLORS[0]} strokeWidth={2} dot />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <Tooltip {...DARK_TOOLTIP} />
+              <Line type="monotone" dataKey="value" stroke={COLORS[0]} strokeWidth={2} dot={{ fill: COLORS[0] }} />
             </LineChart>
           ) : chartType === 'area' ? (
             <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip />
-              <Area type="monotone" dataKey="value" stroke={COLORS[0]} fill={COLORS[0] + '40'} />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <Tooltip {...DARK_TOOLTIP} />
+              <Area type="monotone" dataKey="value" stroke={COLORS[0]} fill={COLORS[0] + '30'} />
             </AreaChart>
           ) : (
             <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
-              <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-              <YAxis tick={{ fontSize: 10 }} />
-              <Tooltip />
+              <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+              <Tooltip {...DARK_TOOLTIP} />
               <Bar dataKey="value" fill={COLORS[0]} radius={[4, 4, 0, 0]} />
             </BarChart>
           )}
@@ -137,22 +147,22 @@ function RejectionChart({
   if (data.length === 0) {
     return (
       <div className="h-full flex flex-col">
-        <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">Rejection Reasons</p>
-        <p className="text-sm text-slate-400 mt-4 text-center">No rejection data yet</p>
+        <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1">Rejection Reasons</p>
+        <p className="text-sm text-slate-500 mt-4 text-center">No rejection data yet</p>
       </div>
     )
   }
 
   return (
     <div className="h-full flex flex-col">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-2">Rejection Reasons</p>
+      <p className="text-xs font-semibold text-slate-400 uppercase tracking-wide mb-2">Rejection Reasons</p>
       {compact ? (
         <div className="space-y-1 mt-1 overflow-auto">
           {data.map((d) => (
             <div key={d.label} className="flex items-center gap-2 text-xs">
               <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: d.color }} />
-              <span className="text-slate-600 flex-1 truncate">{d.label}</span>
-              <span className="font-medium">{d.count}</span>
+              <span className="text-slate-300 flex-1 truncate">{d.label}</span>
+              <span className="font-medium text-slate-200">{d.count}</span>
             </div>
           ))}
         </div>
@@ -166,28 +176,28 @@ function RejectionChart({
                     <Cell key={i} fill={d.color ?? COLORS[i % COLORS.length]} />
                   ))}
                 </Pie>
-                <Tooltip />
-                <Legend />
+                <Tooltip {...DARK_TOOLTIP} />
+                <Legend wrapperStyle={{ color: '#94a3b8', fontSize: 11 }} />
               </PieChart>
             ) : chartType === 'line' ? (
               <LineChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
-                <Line type="monotone" dataKey="value" stroke={COLORS[0]} strokeWidth={2} dot />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <Tooltip {...DARK_TOOLTIP} />
+                <Line type="monotone" dataKey="value" stroke={COLORS[0]} strokeWidth={2} dot={{ fill: COLORS[0] }} />
               </LineChart>
             ) : chartType === 'area' ? (
               <AreaChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
-                <Area type="monotone" dataKey="value" stroke={COLORS[0]} fill={COLORS[0] + '40'} />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <Tooltip {...DARK_TOOLTIP} />
+                <Area type="monotone" dataKey="value" stroke={COLORS[0]} fill={COLORS[0] + '30'} />
               </AreaChart>
             ) : (
               <BarChart data={chartData} margin={{ top: 4, right: 4, left: -20, bottom: 4 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                <YAxis tick={{ fontSize: 10 }} />
-                <Tooltip />
+                <XAxis dataKey="name" tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                <Tooltip {...DARK_TOOLTIP} />
                 <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                   {chartData.map((d, i) => (
                     <Cell key={i} fill={d.color ?? COLORS[i % COLORS.length]} />

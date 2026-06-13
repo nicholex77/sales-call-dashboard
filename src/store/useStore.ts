@@ -130,7 +130,17 @@ export const useStore = create<Store>()(
 
       toggleEditMode: () => set((s) => ({ editMode: !s.editMode })),
     }),
-    { name: 'sales-call-dashboard' }
+    {
+      name: 'sales-call-dashboard',
+      version: 2,
+      migrate: (persisted: unknown, fromVersion: number) => {
+        const state = persisted as Partial<Store>
+        if (fromVersion < 2) {
+          return { ...state, widgets: DEFAULT_WIDGETS }
+        }
+        return state
+      },
+    }
   )
 )
 

@@ -14,15 +14,15 @@ export default function App() {
   const { editMode, toggleEditMode, reports } = useStore()
 
   return (
-    <div className="min-h-screen bg-slate-100">
+    <div className="min-h-screen bg-slate-950">
       {showForm && <CallEntryForm onClose={() => setShowForm(false)} />}
 
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-40">
+      <header className="bg-slate-900 border-b border-slate-700 sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Sales Call Dashboard</h1>
-            <p className="text-xs text-slate-400">{reports.length} report{reports.length !== 1 ? 's' : ''} logged</p>
+            <h1 className="text-xl font-bold text-white">Sales Call Dashboard</h1>
+            <p className="text-xs text-slate-500">{reports.length} report{reports.length !== 1 ? 's' : ''} logged</p>
           </div>
           <div className="flex items-center gap-3">
             {tab === 'dashboard' && (
@@ -31,7 +31,7 @@ export default function App() {
                 className={`flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${
                   editMode
                     ? 'bg-indigo-600 text-white border-indigo-600'
-                    : 'text-slate-600 border-slate-300 hover:bg-slate-50'
+                    : 'text-slate-300 border-slate-600 hover:bg-slate-800'
                 }`}
               >
                 <PenSquare size={15} />
@@ -49,7 +49,7 @@ export default function App() {
         </div>
 
         {/* Tabs */}
-        <div className="max-w-7xl mx-auto px-6 flex gap-1 border-t border-slate-100">
+        <div className="max-w-7xl mx-auto px-6 flex gap-1 border-t border-slate-800">
           {([
             { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
             { id: 'reports', label: 'All Reports', icon: Table2 },
@@ -60,8 +60,8 @@ export default function App() {
               onClick={() => setTab(id)}
               className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
                 tab === id
-                  ? 'border-indigo-600 text-indigo-600'
-                  : 'border-transparent text-slate-500 hover:text-slate-700'
+                  ? 'border-indigo-500 text-indigo-400'
+                  : 'border-transparent text-slate-400 hover:text-slate-200'
               }`}
             >
               <Icon size={15} />
