@@ -11,7 +11,7 @@ import type { ChartType, MetricKey } from '../types'
 const CHART_TYPES: ChartType[] = ['bar', 'pie', 'line', 'area']
 
 export default function Dashboard() {
-  const { reports, labels, widgets, editMode, updateWidgets, toggleWidget, setWidgetChartType } = useStore()
+  const { reports, labels, widgets, editMode, updateWidgets, toggleWidget, setWidgetChartType, resetWidgets } = useStore()
 
   const metrics = useMemo(() => computeMetrics(reports, labels), [reports, labels])
 
@@ -38,8 +38,21 @@ export default function Dashboard() {
     <div>
       {editMode && (
         <div className="mb-4 p-4 bg-indigo-50 border border-indigo-200 rounded-xl">
-          <p className="text-sm font-medium text-indigo-700 mb-3">Dashboard Customization</p>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <p className="text-sm font-medium text-indigo-700 mb-3">Dashboard Customization</p>
+              <p className="text-sm text-slate-600 max-w-2xl">
+                Drag widgets like puzzle pieces, resize them, and choose which charts to display. Your layout is saved automatically.
+              </p>
+            </div>
+            <button
+              onClick={resetWidgets}
+              className="inline-flex items-center justify-center rounded-lg border border-indigo-300 bg-white px-3 py-2 text-sm font-medium text-indigo-700 transition-colors hover:bg-indigo-50"
+            >
+              Reset layout
+            </button>
+          </div>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 mt-4">
             {widgets.map((w) => (
               <div
                 key={w.id}

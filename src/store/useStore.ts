@@ -37,6 +37,7 @@ interface Store {
   updateWidgets: (widgets: DashboardWidget[]) => void
   toggleWidget: (id: string) => void
   setWidgetChartType: (id: string, chartType: DashboardWidget['chartType']) => void
+  resetWidgets: () => void
   toggleEditMode: () => void
 }
 
@@ -90,6 +91,8 @@ export const useStore = create<Store>()(
         set((s) => ({
           widgets: s.widgets.map((w) => (w.id === id ? { ...w, chartType } : w)),
         })),
+
+      resetWidgets: () => set({ widgets: DEFAULT_WIDGETS }),
 
       toggleEditMode: () => set((s) => ({ editMode: !s.editMode })),
     }),
